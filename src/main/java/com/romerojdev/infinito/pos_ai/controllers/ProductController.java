@@ -19,12 +19,11 @@ public class ProductController {
 
     @GetMapping
     public Page<Product> getAll(
-            @RequestParam(defaultValue = "") String barcode,
+            @RequestParam(defaultValue = "") String barcodeOrName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return productService.getAll(barcode, pageable);
+        return productService.getAll(barcodeOrName, pageable);
     }
 }
-

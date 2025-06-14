@@ -5,6 +5,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
-    Page<Product> getAll(String barcode, Pageable pageable);
+    Page<Product> getAll(String barcodeOrName, Pageable pageable);
 }
-

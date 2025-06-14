@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, String> {
     Page<Product> findByBarcodeContaining(String barcode, Pageable pageable);
+    Page<Product> findByBarcodeContainingOrNombreContaining(String barcode, String nombre, Pageable pageable);
 }
-

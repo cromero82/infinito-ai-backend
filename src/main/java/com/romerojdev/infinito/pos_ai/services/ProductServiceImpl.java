@@ -13,11 +13,10 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Override
-    public Page<Product> getAll(String barcode, Pageable pageable) {
-        if (barcode != null && !barcode.isEmpty()) {
-            return productRepository.findByBarcodeContaining(barcode, pageable);
+    public Page<Product> getAll(String barcodeOrName, Pageable pageable) {
+        if (barcodeOrName != null && !barcodeOrName.isEmpty()) {
+            return productRepository.findByBarcodeContainingOrNombreContaining(barcodeOrName, barcodeOrName, pageable);
         }
         return productRepository.findAll(pageable);
     }
 }
-
