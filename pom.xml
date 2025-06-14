@@ -56,9 +56,9 @@
 	    <dependency>
 	        <groupId>org.vosk</groupId>
 	        <artifactId>vosk</artifactId>
-	        <version>0.3.50</version>
+	        <version>0.3.38</version>
 	        <scope>system</scope>
-	        <systemPath>${project.basedir}/lib/vosk-0.3.50.jar</systemPath>
+	        <systemPath>${project.basedir}/lib/vosk-osx-0.3.38/vosk-0.3.38.jar</systemPath>
 	    </dependency>
 	    <dependency>
             <groupId>net.java.dev.jna</groupId>
