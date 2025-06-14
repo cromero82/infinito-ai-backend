@@ -53,6 +53,18 @@
 	        <artifactId>spring-boot-starter-test</artifactId>
 	        <scope>test</scope>
 	    </dependency>
+	    <dependency>
+	        <groupId>org.vosk</groupId>
+	        <artifactId>vosk</artifactId>
+	        <version>0.3.38</version>
+	        <scope>system</scope>
+	        <systemPath>${project.basedir}/lib/vosk-osx-0.3.38/vosk-0.3.38.jar</systemPath>
+	    </dependency>
+	    <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.13.0</version>
+        </dependency>
 	</dependencies>
 
 	<build>
