@@ -1,0 +1,5 @@
+# Example curl command to search products by tokens using the API
+
+curl --location 'http://localhost:8080/api/mongoquery/products/search?q=leche%201000%20mililitros' \
+--header 'accept: application/json'
+
