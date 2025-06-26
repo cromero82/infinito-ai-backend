@@ -1,9 +1,15 @@
 package com.romerojdev.infinito.pos_ai.services;
 
+import com.romerojdev.infinito.pos_ai.dto.ProductDTO;
+import com.romerojdev.infinito.pos_ai.model.Company;
+import com.romerojdev.infinito.pos_ai.repository.QueryCompanyRepository;
 import com.romerojdev.infinito.pos_ai.model.Product;
 import com.romerojdev.infinito.pos_ai.repository.QueryProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +50,8 @@ import java.util.ArrayList;
 public class QueryProductService {
     @Autowired
     private QueryProductRepository queryProductRepository;
+    @Autowired
+    private QueryCompanyRepository queryCompanyRepository;
 
     /**
      * Returns products matching any of the tokens in the input (OR logic).
@@ -108,6 +116,53 @@ public class QueryProductService {
     }
 
     /**
+     * Returns a page of products matching any of the tokens in the input (OR logic).
+     * @param input the input string to split into tokens
+     * @param pageable the pagination information
+     * @return page of products matching any token
+     */
+    public Page<Product> pagedQueryByTokens(String input, Pageable pageable) {
+        if (input == null || input.trim().isEmpty()) {
+            return queryProductRepository.findAll(pageable);
+        }
+        List<String> tokens = Arrays.stream(input.toLowerCase().split("\\s+"))
+                .distinct()
+                .collect(Collectors.toList());
+        return queryProductRepository.findByTokensIn(tokens, pageable);
+    }
+
+    /**
+     * Paginated smart search grow: tries all combinations of tokens (from largest to pairs),
+     * collecting unique results, and returns a page.
+     */
+    public Page<Product> pageSmartSearchGrow(String input, Pageable pageable) {
+        if (input == null || input.trim().isEmpty()) {
+            return queryProductRepository.findAll(pageable);
+        }
+        List<String> stopwords = List.of("de", "o");
+        List<String> tokens = Arrays.stream(input.toLowerCase().split("\\s+")).filter(t -> !stopwords.contains(t)).distinct().collect(Collectors.toList());
+        if(tokens.size() == 1){
+            return  queryProductRepository.findByTokensIn(tokens, pageable);
+        }
+        Set<Product> resultSet = new LinkedHashSet<>();
+        int n = tokens.size();
+        for (int k = n; k >= 2; k--) {
+            Set<Set<String>> combinations = new HashSet<>();
+            combine(tokens, k, 0, new LinkedHashSet<>(), combinations);
+            for (Set<String> combo : combinations) {
+                String query = String.join(" ", combo);
+                resultSet.addAll(queryByAllTokens(query));
+            }
+            if (!resultSet.isEmpty()) break;
+        }
+        List<Product> resultList = new ArrayList<>(resultSet);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), resultList.size());
+        List<Product> pageContent = (start < end) ? resultList.subList(start, end) : new ArrayList<>();
+        return new org.springframework.data.domain.PageImpl<>(pageContent, pageable, resultList.size());
+    }
+
+    /**
      * Helper to generate all combinations of k elements from the tokens list.
      * @param tokens the list of tokens
      * @param k the size of each combination
@@ -125,5 +180,46 @@ public class QueryProductService {
             combine(tokens, k, i + 1, current, result);
             current.remove(tokens.get(i));
         }
+    }
+
+    @Transactional
+    public Product addProduct(ProductDTO dto) {
+        Product product = mapDtoToProduct(dto);
+        return queryProductRepository.save(product);
+    }
+
+    @Transactional
+    public Product editProduct(String id, ProductDTO dto) {
+        Product existing = queryProductRepository.findById(id).orElse(null);
+        if (existing == null) return null;
+        Product updated = mapDtoToProduct(dto);
+        updated.setId(id);
+        return queryProductRepository.save(updated);
+    }
+
+    private Product mapDtoToProduct(ProductDTO dto) {
+        Product product = new Product();
+        product.setNombre(dto.getNombre());
+        // Split nombre into tokens, omitting 'de'
+        List<String> tokens = Arrays.stream(dto.getNombre().split(" "))
+            .filter(t -> !t.equalsIgnoreCase("de"))
+            .collect(Collectors.toList());
+        product.setTokens(tokens);
+        product.setType(dto.getType());
+        product.setPrice(dto.getPrice());
+        product.setPhoto((dto.getPhoto() == null || dto.getPhoto().isEmpty()) ? "undefined" : dto.getPhoto());
+        // Features is not set (null)
+        Product.Reference ref = new Product.Reference();
+        ref.setBarcode(dto.getBarcode());
+        Company company = queryCompanyRepository.findById(Long.valueOf(dto.getCompanyId())).orElse(null);
+        if (company != null) {
+            ref.setCompany_id(company.getId());
+            ref.setMarca(company.getName());
+        } else {
+            ref.setCompany_id(String.valueOf(dto.getCompanyId()));
+            ref.setMarca(null);
+        }
+        product.setReference(ref);
+        return product;
     }
 }

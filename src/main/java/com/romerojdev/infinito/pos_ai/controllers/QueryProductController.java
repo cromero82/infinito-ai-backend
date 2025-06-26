@@ -1,12 +1,14 @@
 package com.romerojdev.infinito.pos_ai.controllers;
 
+import com.romerojdev.infinito.pos_ai.dto.ProductDTO;
 import com.romerojdev.infinito.pos_ai.model.Product;
 import com.romerojdev.infinito.pos_ai.services.QueryProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,8 +33,40 @@ public class QueryProductController {
         return productService.smartSearchGrow(input);
     }
 
+    @GetMapping("/paged-search")
+    public Page<Product> pagedQueryByTokens(
+            @RequestParam("q") String input,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.pagedQueryByTokens(input, pageable);
+    }
+
+    @GetMapping("/page-smart-search")
+    public Page<Product> pageSmartSearchGrow(
+            @RequestParam("q") String input,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.pageSmartSearchGrow(input, pageable);
+    }
+
+    @PostMapping("/add")
+    public Product addProduct(@RequestBody @Valid ProductDTO dto) {
+        return productService.addProduct(dto);
+    }
+
+    @PutMapping("/edit/{id}")
+    public Product editProduct(@PathVariable String id, @RequestBody @Valid ProductDTO dto) {
+        return productService.editProduct(id, dto);
+    }
+
     @GetMapping("/health")
     public String health() {
         return "OK";
     }
 }
+
+

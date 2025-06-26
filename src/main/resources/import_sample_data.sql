@@ -75,6 +75,58 @@ INSERT INTO product (barcode, nombre, precio, foto, company_id) VALUES
 ('7730002678901', 'Natilla', 13.5, 'assets/img/demo/natilla.jpg', 5);
 
 -- NoSQL section for MongoDB
+
+-- insert companies
+db.companies.insertMany([
+  {
+    _id: 1,
+    name: "Alpina",
+    description: "Lácteos y alimentos procesados",
+    email: "contacto@alpina.com",
+    telefono: "+57 1 8000 518 900",
+    contact_name: "Juan Pérez"
+  },
+  {
+    _id: 2,
+    name: "Grupo Éxito",
+    description: "Supermercados y retail",
+    email: "info@grupoexito.com",
+    telefono: "+57 4 604 1919",
+    contact_name: "María Gómez"
+  },
+  {
+    _id: 3,
+    name: "Postobón",
+    description: "Bebidas y refrescos",
+    email: "servicio@postobon.com.co",
+    telefono: "+57 1 404 9000",
+    contact_name: "Carlos Rodríguez"
+  },
+  {
+    _id: 4,
+    name: "Nutresa",
+    description: "Alimentos procesados y chocolates",
+    email: "contacto@nutresa.com",
+    telefono: "+57 4 444 8600",
+    contact_name: "Ana Martínez"
+  },
+  {
+    _id: 5,
+    name: "Colanta",
+    description: "Lácteos y productos agrícolas",
+    email: "info@colanta.com",
+    telefono: "+57 4 445 9000",
+    contact_name: "Luis Ramírez"
+  }
+])
+
+db.types.insertMany([
+  { _id: 1, name: "Gaseosas o bebidas azucarada", percentProfit: 0.3 },
+  { _id: 2, name: "Lacteos", percentProfit: 0.3 },
+  { _id: 3, name: "Viveres", percentProfit: 0.3 }
+]);
+
+-- insert products
 db.products.insertMany([
   {
     "_id": "1234567890",
