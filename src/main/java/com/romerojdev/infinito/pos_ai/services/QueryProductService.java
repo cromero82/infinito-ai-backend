@@ -210,13 +210,14 @@ public class QueryProductService {
         product.setPhoto((dto.getPhoto() == null || dto.getPhoto().isEmpty()) ? "undefined" : dto.getPhoto());
         // Features is not set (null)
         Product.Reference ref = new Product.Reference();
-        ref.setBarcode(dto.getBarcode());
-        Company company = queryCompanyRepository.findById(Long.valueOf(dto.getCompanyId())).orElse(null);
+        ref.setBarcode(dto.getReference().getBarcode());
+        Integer companyId = dto.getReference().getCompanyId();
+        com.romerojdev.infinito.pos_ai.model.Company company = queryCompanyRepository.findById(Long.valueOf(companyId)).orElse(null);
         if (company != null) {
             ref.setCompany_id(company.getId());
             ref.setMarca(company.getName());
         } else {
-            ref.setCompany_id(String.valueOf(dto.getCompanyId()));
+            ref.setCompany_id(String.valueOf(companyId));
             ref.setMarca(null);
         }
         product.setReference(ref);
