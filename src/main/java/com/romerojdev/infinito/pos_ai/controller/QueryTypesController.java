@@ -28,7 +28,8 @@ public class QueryTypesController {
 
     @PostMapping
     public Type createType(@RequestBody Type type) {
-        return queryTypesService.save(type);
+
+        return queryTypesService.saveWithTranslation(type);
     }
 
     @PutMapping("/{id}")
@@ -38,9 +39,7 @@ public class QueryTypesController {
             return ResponseEntity.notFound().build();
         }
         Type type = optionalType.get();
-        type.setName(typeDetails.getName());
-        type.setPercentProfit(typeDetails.getPercentProfit());
-        return ResponseEntity.ok(queryTypesService.save(type));
+        return ResponseEntity.ok(queryTypesService.updateWithTranslation(type, typeDetails));
     }
 
     @DeleteMapping("/{id}")
@@ -52,4 +51,3 @@ public class QueryTypesController {
         return ResponseEntity.noContent().build();
     }
 }
-
