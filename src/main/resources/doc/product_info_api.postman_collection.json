@@ -1,0 +1,32 @@
+{
+  "info": {
+    "_postman_id": "b1e2c3d4-5678-1234-9abc-def012345678",
+    "name": "Product Info API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Product Info by Barcode",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/product-info/barcode/{{barcode}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "product-info",
+            "barcode",
+            "{{barcode}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
+
