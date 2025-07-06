@@ -764,3 +764,16 @@ db.products.updateOne({ _id: "7727002345678" }, { $set: { price: 15000 } });
 
 // Set default photo for all products
 db.products.updateMany({}, { $set: { photo: "undefined" } });
+
+db.getCollection("companies").find({})
+
+db.companies.insertOne({
+  _id: 6,
+  name: "Coca Cola",
+  description: "Bebidas y refrescos",
+  email: "contacto@cocacola.com",
+  telefono: "+57 1 8000 123 456",
+  contact_name: "Carlos Coca"
+});
+
+

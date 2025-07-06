@@ -10,19 +10,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ProductDTO {
     @NotBlank
     private String nombre;
-    @NotNull
     private ReferenceDTO reference;
-    @NotBlank
     private String type;
     @NotNull
     private Integer price;
     private String photo;
+    private String imageUrl; // Optional field for direct image URL
 
     @Data
     public static class ReferenceDTO {
-        @NotBlank
         private String barcode;
-        @NotNull
         @JsonProperty("company_id")
         private Integer companyId;
     }

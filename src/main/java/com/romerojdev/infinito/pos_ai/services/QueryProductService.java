@@ -5,14 +5,19 @@ import com.romerojdev.infinito.pos_ai.model.Company;
 import com.romerojdev.infinito.pos_ai.repository.QueryCompanyRepository;
 import com.romerojdev.infinito.pos_ai.model.Product;
 import com.romerojdev.infinito.pos_ai.repository.QueryProductRepository;
+import com.romerojdev.infinito.pos_ai.models.ProductImage;
+import com.romerojdev.infinito.pos_ai.repositories.ProductImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -52,6 +57,7 @@ public class QueryProductService {
     private QueryProductRepository queryProductRepository;
     @Autowired
     private QueryCompanyRepository queryCompanyRepository;
+    private ProductImageRepository productImageRepository;
 
     /**
      * Returns products matching any of the tokens in the input (OR logic).
@@ -183,18 +189,48 @@ public class QueryProductService {
     }
 
     @Transactional
-    public Product addProduct(ProductDTO dto) {
+    public Product addProduct(ProductDTO dto, String imageUrl) {
         Product product = mapDtoToProduct(dto);
+        // If imageUrl is provided (param or DTO), set photo and update products_image
+        String finalImageUrl = org.springframework.util.StringUtils.hasText(imageUrl) ? imageUrl : dto.getImageUrl();
+        if (org.springframework.util.StringUtils.hasText(finalImageUrl)) {
+            product.setPhoto(finalImageUrl);
+            // Upsert in products_image
+            java.util.HashMap<String, Object> imgbb = new java.util.HashMap<>();
+            imgbb.put("url", finalImageUrl);
+            imgbb.put("display_url", finalImageUrl);
+            com.romerojdev.infinito.pos_ai.models.ProductImage pi = new com.romerojdev.infinito.pos_ai.models.ProductImage(product.getId(), imgbb);
+            productImageRepository.save(pi);
+        }
         return queryProductRepository.save(product);
     }
 
     @Transactional
-    public Product editProduct(String id, ProductDTO dto) {
+    public Product editProduct(String id, ProductDTO dto, String imageUrl) {
         Product existing = queryProductRepository.findById(id).orElse(null);
         if (existing == null) return null;
         Product updated = mapDtoToProduct(dto);
         updated.setId(id);
+        String finalImageUrl = StringUtils.hasText(imageUrl) ? imageUrl : dto.getImageUrl();
+        if (StringUtils.hasText(finalImageUrl)) {
+            updated.setPhoto(finalImageUrl);
+            // Upsert in products_image
+            HashMap<String, Object> imgbb = new HashMap<>();
+            imgbb.put("url", finalImageUrl);
+            imgbb.put("display_url", finalImageUrl);
+            ProductImage pi = new ProductImage(id, imgbb);
+            productImageRepository.save(pi);
+        }
         return queryProductRepository.save(updated);
+    }
+
+    @Transactional
+    public void updateProductPhoto(String productId, String photoUrl) {
+        Product product = queryProductRepository.findById(productId).orElse(null);
+        if (product != null) {
+            product.setPhoto(photoUrl);
+            queryProductRepository.save(product);
+        }
     }
 
     private Product mapDtoToProduct(ProductDTO dto) {
@@ -210,15 +246,19 @@ public class QueryProductService {
         product.setPhoto((dto.getPhoto() == null || dto.getPhoto().isEmpty()) ? "undefined" : dto.getPhoto());
         // Features is not set (null)
         Product.Reference ref = new Product.Reference();
-        ref.setBarcode(dto.getReference().getBarcode());
-        Integer companyId = dto.getReference().getCompanyId();
-        com.romerojdev.infinito.pos_ai.model.Company company = queryCompanyRepository.findById(Long.valueOf(companyId)).orElse(null);
-        if (company != null) {
-            ref.setCompany_id(company.getId());
-            ref.setMarca(company.getName());
-        } else {
-            ref.setCompany_id(String.valueOf(companyId));
-            ref.setMarca(null);
+        if (dto.getReference() != null) {
+            ref.setBarcode(dto.getReference().getBarcode());
+            Integer companyId = dto.getReference().getCompanyId();
+            if (companyId != null) {
+                com.romerojdev.infinito.pos_ai.model.Company company = queryCompanyRepository.findById(Long.valueOf(companyId)).orElse(null);
+                if (company != null) {
+                    ref.setCompany_id(company.getId());
+                    ref.setMarca(company.getName());
+                } else {
+                    ref.setCompany_id(String.valueOf(companyId));
+                    ref.setMarca(null);
+                }
+            }
         }
         product.setReference(ref);
         return product;

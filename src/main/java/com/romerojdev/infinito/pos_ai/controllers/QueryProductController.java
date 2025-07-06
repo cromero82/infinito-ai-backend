@@ -2,13 +2,16 @@ package com.romerojdev.infinito.pos_ai.controllers;
 
 import com.romerojdev.infinito.pos_ai.dto.ProductDTO;
 import com.romerojdev.infinito.pos_ai.model.Product;
+import com.romerojdev.infinito.pos_ai.services.IImageService;
 import com.romerojdev.infinito.pos_ai.services.QueryProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,6 +20,9 @@ import java.util.List;
 public class QueryProductController {
     @Autowired
     private QueryProductService productService;
+
+    @Autowired
+    private IImageService imageService;
 
     @GetMapping("/search")
     public List<Product> queryByTokens(@RequestParam("q") String input) {
@@ -54,13 +60,16 @@ public class QueryProductController {
     }
 
     @PostMapping("/add")
-    public Product addProduct(@RequestBody @Valid ProductDTO dto) {
-        return productService.addProduct(dto);
+    public Product addProduct(@RequestBody @Valid ProductDTO dto,
+                             @RequestParam(value = "imageUrl", required = false) String imageUrl) {
+        return productService.addProduct(dto, imageUrl);
     }
 
     @PutMapping("/edit/{id}")
-    public Product editProduct(@PathVariable String id, @RequestBody @Valid ProductDTO dto) {
-        return productService.editProduct(id, dto);
+    public Product editProduct(@PathVariable String id,
+                              @RequestBody @Valid ProductDTO dto,
+                              @RequestParam(value = "imageUrl", required = false) String imageUrl) {
+        return productService.editProduct(id, dto, imageUrl);
     }
 
     @GetMapping("/health")
@@ -68,5 +77,3 @@ public class QueryProductController {
         return "OK";
     }
 }
-
-
