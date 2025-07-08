@@ -15,5 +15,12 @@ public class QueryCompanyService {
     public List<Company> getAllCompanies() {
         return companyRepository.findAll();
     }
-}
 
+    public Company saveIfNameNotExists(Company company) {
+        if (company.getName() == null) {
+            throw new IllegalArgumentException("Company name must not be null");
+        }
+        return companyRepository.findByNameIgnoreCase(company.getName())
+                .orElseGet(() -> companyRepository.save(company));
+    }
+}

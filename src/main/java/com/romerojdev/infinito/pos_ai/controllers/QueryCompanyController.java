@@ -3,9 +3,8 @@ package com.romerojdev.infinito.pos_ai.controllers;
 import com.romerojdev.infinito.pos_ai.model.Company;
 import com.romerojdev.infinito.pos_ai.services.QueryCompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,5 +18,14 @@ public class QueryCompanyController {
     public List<Company> getAllCompanies() {
         return companyService.getAllCompanies();
     }
-}
 
+    @PostMapping
+    public ResponseEntity<Company> addCompany(@RequestBody Company company) {
+        try {
+            Company saved = companyService.saveIfNameNotExists(company);
+            return ResponseEntity.ok(saved);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+}
