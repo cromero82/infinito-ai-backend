@@ -21,7 +21,7 @@ public class QueryTypesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Type> getTypeById(@PathVariable String id) {
+    public ResponseEntity<Type> getTypeById(@PathVariable Integer id) {
         Optional<Type> type = queryTypesService.findById(id);
         return type.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -33,7 +33,7 @@ public class QueryTypesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Type> updateType(@PathVariable String id, @RequestBody Type typeDetails) {
+    public ResponseEntity<Type> updateType(@PathVariable Integer id, @RequestBody Type typeDetails) {
         Optional<Type> optionalType = queryTypesService.findById(id);
         if (!optionalType.isPresent()) {
             return ResponseEntity.notFound().build();
@@ -43,7 +43,7 @@ public class QueryTypesController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteType(@PathVariable String id) {
+    public ResponseEntity<Void> deleteType(@PathVariable Integer id) {
         if (!queryTypesService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.bson.types.ObjectId;
 
 @Data
 @NoArgsConstructor
@@ -12,11 +13,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "companies")
 public class Company {
     @Id
-    private String id;
+    private Integer id;
     private String name;
     private String description;
     private String email;
     private String telefono;
     private String contact_name;
 }
-

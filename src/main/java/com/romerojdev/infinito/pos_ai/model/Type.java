@@ -6,23 +6,23 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "types")
 public class Type {
     @Id
-    private String id;
+    private Integer id;
     private String name;
     private Double percentProfit;
 
     public Type() {}
 
-    public Type(String id, String name, Double percentProfit) {
+    public Type(Integer id, String name, Double percentProfit) {
         this.id = id;
         this.name = name;
         this.percentProfit = percentProfit;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -42,4 +42,3 @@ public class Type {
         this.percentProfit = percentProfit;
     }
 }
-

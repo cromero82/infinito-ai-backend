@@ -5,6 +5,7 @@ import com.romerojdev.infinito.pos_ai.repository.QueryTypesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,19 +21,27 @@ public class QueryTypesService {
         return queryTypesRepository.findAll();
     }
 
-    public Optional<Type> findById(String id) {
+    public Optional<Type> findById(Integer id) {
         return queryTypesRepository.findById(id);
     }
 
     public Type save(Type type) {
+        if (type.getId() == null) {
+            type.setId(getNextId());
+        }
         return queryTypesRepository.save(type);
     }
 
-    public void deleteById(String id) {
+    public void deleteById(Integer id) {
         queryTypesRepository.deleteById(id);
     }
 
     public Type saveWithTranslation(Type type) {
+        // Set the next available ID if not provided
+        if (type.getId() == null) {
+            type.setId(getNextId());
+        }
+
         if (type.getName() != null && translationService.isEnglish(type.getName())) {
             type.setName(translationService.translateEnToEs(type.getName()));
         }
@@ -44,6 +53,17 @@ public class QueryTypesService {
             return existing.get();
         }
         return queryTypesRepository.save(type);
+    }
+
+    /**
+     * Generates the next available ID for Type entities
+     * @return the next available integer ID
+     */
+    private Integer getNextId() {
+        return queryTypesRepository.findAll().stream()
+            .map(Type::getId)
+            .max(Comparator.naturalOrder())
+            .orElse(0) + 1;
     }
 
     public Type updateWithTranslation(Type existing, Type updates) {

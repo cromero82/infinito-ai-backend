@@ -189,19 +189,10 @@ public class QueryProductService {
     }
 
     @Transactional
-    public Product addProduct(ProductDTO dto, String imageUrl) {
+    public Product addProduct(ProductDTO dto) {
         Product product = mapDtoToProduct(dto);
-        // If imageUrl is provided (param or DTO), set photo and update products_image
-        String finalImageUrl = org.springframework.util.StringUtils.hasText(imageUrl) ? imageUrl : dto.getImageUrl();
-        if (org.springframework.util.StringUtils.hasText(finalImageUrl)) {
-            product.setPhoto(finalImageUrl);
-            // Upsert in products_image
-            java.util.HashMap<String, Object> imgbb = new java.util.HashMap<>();
-            imgbb.put("url", finalImageUrl);
-            imgbb.put("display_url", finalImageUrl);
-            com.romerojdev.infinito.pos_ai.models.ProductImage pi = new com.romerojdev.infinito.pos_ai.models.ProductImage(product.getId(), imgbb);
-            productImageRepository.save(pi);
-        }
+        // Only use photo from dto
+        product.setPhoto((dto.getPhoto() == null || dto.getPhoto().isEmpty()) ? "undefined" : dto.getPhoto());
         return queryProductRepository.save(product);
     }
 
@@ -252,7 +243,7 @@ public class QueryProductService {
             if (companyId != null) {
                 com.romerojdev.infinito.pos_ai.model.Company company = queryCompanyRepository.findById(Long.valueOf(companyId)).orElse(null);
                 if (company != null) {
-                    ref.setCompany_id(company.getId());
+                    ref.setCompany_id(String.valueOf(company.getId()));
                     ref.setMarca(company.getName());
                 } else {
                     ref.setCompany_id(String.valueOf(companyId));

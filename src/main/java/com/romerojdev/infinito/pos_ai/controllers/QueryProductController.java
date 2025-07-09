@@ -60,9 +60,8 @@ public class QueryProductController {
     }
 
     @PostMapping("/add")
-    public Product addProduct(@RequestBody @Valid ProductDTO dto,
-                             @RequestParam(value = "imageUrl", required = false) String imageUrl) {
-        return productService.addProduct(dto, imageUrl);
+    public Product addProduct(@RequestBody @Valid ProductDTO dto) {
+        return productService.addProduct(dto);
     }
 
     @PutMapping("/edit/{id}")

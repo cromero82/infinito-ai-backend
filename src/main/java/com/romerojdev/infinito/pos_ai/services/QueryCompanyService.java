@@ -21,6 +21,18 @@ public class QueryCompanyService {
             throw new IllegalArgumentException("Company name must not be null");
         }
         return companyRepository.findByNameIgnoreCase(company.getName())
-                .orElseGet(() -> companyRepository.save(company));
+                .orElseGet(() -> {
+                    if (company.getId() == null) {
+                        // Assign next available Integer id
+                        List<Company> all = companyRepository.findAll();
+                        int nextId = all.stream()
+                                .map(Company::getId)
+                                .filter(java.util.Objects::nonNull)
+                                .max(Integer::compareTo)
+                                .orElse(0) + 1;
+                        company.setId(nextId);
+                    }
+                    return companyRepository.save(company);
+                });
     }
 }
