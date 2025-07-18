@@ -2,10 +2,16 @@ package com.romerojdev.infinito.pos_ai.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.Date;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductInfoDTO {
     private String code;
     private Product product;
+    private Date priceValidUntil;
+    private Double price;
+    private Double priceWithoutDiscount;
+    private Double percentDiscount;
 
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
     public static class Product {
@@ -67,6 +73,10 @@ public class ProductInfoDTO {
         public String category;
         public String subcategory;
         public java.util.List<Seller> sellers;
+        public Date priceValidUntil;
+        public Double price;
+        public Double priceWithoutDiscount;
+        public Double percentDiscount;
 
         public static class Seller {
             public String sellerId;
@@ -105,5 +115,37 @@ public class ProductInfoDTO {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public Date getPriceValidUntil() {
+        return priceValidUntil;
+    }
+
+    public void setPriceValidUntil(Date priceValidUntil) {
+        this.priceValidUntil = priceValidUntil;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Double getPriceWithoutDiscount() {
+        return priceWithoutDiscount;
+    }
+
+    public void setPriceWithoutDiscount(Double priceWithoutDiscount) {
+        this.priceWithoutDiscount = priceWithoutDiscount;
+    }
+
+    public Double getPercentDiscount() {
+        return percentDiscount;
+    }
+
+    public void setPercentDiscount(Double percentDiscount) {
+        this.percentDiscount = percentDiscount;
     }
 }
