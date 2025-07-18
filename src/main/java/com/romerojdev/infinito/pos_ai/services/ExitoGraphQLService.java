@@ -112,6 +112,37 @@ public class ExitoGraphQLService {
                 dto.getProduct().category = category;
                 dto.getProduct().subcategory = subcategory;
             }
+
+            // Try to extract priceValidUntil from <script id="__NEXT_DATA__" type="application/json">
+            try {
+                org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parse(responseBody);
+                org.jsoup.nodes.Element nextDataScript = doc.selectFirst("script#__NEXT_DATA__");
+                if (nextDataScript != null) {
+                    String json = nextDataScript.html();
+                    JsonNode nextData = mapper.readTree(json);
+                    JsonNode priceValidUntilNode = nextData
+                        .path("props")
+                        .path("pageProps")
+                        .path("data")
+                        .path("product")
+                        .path("offers")
+                        .path("offers");
+                    if (priceValidUntilNode.isArray() && priceValidUntilNode.size() > 0) {
+                        String priceValidUntilStr = priceValidUntilNode.get(0).path("priceValidUntil").asText(null);
+                        if (priceValidUntilStr != null) {
+                            try {
+                                java.text.SimpleDateFormat isoDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                                java.util.Date priceValidUntil = isoDateFormat.parse(priceValidUntilStr);
+                                if (dto != null && dto.getProduct() != null) {
+                                    dto.getProduct().priceValidUntil = priceValidUntil;
+                                }
+                                dto.setPriceValidUntil(priceValidUntil);
+                            } catch (Exception ignore) {}
+                        }
+                    }
+                }
+            } catch (Exception ignore) {}
+
             return dto;
 
         } catch (Exception e) {
@@ -207,6 +238,23 @@ public class ExitoGraphQLService {
                 if (seller.has("commertialOffer") && seller.get("commertialOffer").has("Price")) {
                     double price = seller.get("commertialOffer").get("Price").asDouble();
                     productDto.product_quantity = String.valueOf(price);
+                }
+            }
+
+            // Extract priceValidUntil from offers[0].priceValidUntil if available
+            if (product.has("offers") && product.get("offers").isArray() && product.get("offers").size() > 0) {
+                JsonNode offer = product.get("offers").get(0);
+                if (offer.has("priceValidUntil")) {
+                    String priceValidUntilStr = offer.get("priceValidUntil").asText();
+                    if (priceValidUntilStr != null && !priceValidUntilStr.isEmpty()) {
+                        try {
+                            java.text.SimpleDateFormat isoDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                            java.util.Date priceValidUntil = isoDateFormat.parse(priceValidUntilStr);
+                            productDto.priceValidUntil = priceValidUntil;
+                        } catch (Exception e) {
+                            // Ignore parse errors
+                        }
+                    }
                 }
             }
 

@@ -390,6 +390,44 @@ public class ExitoProductInfoStrategy implements ProductInfoStrategy {
                 productDto.image_url = BASE_URL + "/" + product.get("slug").asText() + "/p";
             }
 
+            // Extract priceValidUntil from offers[0].priceValidUntil if available
+            if (product.has("offers") && product.get("offers").isArray() && product.get("offers").size() > 0) {
+                JsonNode offer = product.get("offers").get(0);
+                if (offer.has("priceValidUntil")) {
+                    String priceValidUntilStr = offer.get("priceValidUntil").asText();
+                    if (priceValidUntilStr != null && !priceValidUntilStr.isEmpty()) {
+                        try {
+                            java.text.SimpleDateFormat isoDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                            java.util.Date priceValidUntil = isoDateFormat.parse(priceValidUntilStr);
+                            productDto.priceValidUntil = priceValidUntil;
+                        } catch (Exception e) {
+                            // Ignore parse errors
+                        }
+                    }
+                }
+            }
+
+            // Extract price and priceWithoutDiscount from offers if available
+            if (product.has("offers")) {
+                JsonNode offersNode = product.get("offers");
+                if (offersNode.has("lowPrice")) {
+                    double price = offersNode.get("lowPrice").asDouble();
+                    productDto.price = price;
+                }
+                if (offersNode.has("offers") && offersNode.get("offers").isArray() && offersNode.get("offers").size() > 0) {
+                    JsonNode offerNode = offersNode.get("offers").get(0);
+                    if (offerNode.has("listPrice")) {
+                        double priceWithoutDiscount = offerNode.get("listPrice").asDouble();
+                        productDto.priceWithoutDiscount = priceWithoutDiscount;
+                    }
+                }
+            }
+            // Calculate percentDiscount if both price and priceWithoutDiscount exist and priceWithoutDiscount > 0
+            if (productDto.price != null && productDto.priceWithoutDiscount != null && productDto.priceWithoutDiscount > 0) {
+                double percentDiscount = 100.0 * (productDto.priceWithoutDiscount - productDto.price) / productDto.priceWithoutDiscount;
+                productDto.percentDiscount = percentDiscount;
+            }
+
             // Set store information
             productDto.stores = "Exito";
 
