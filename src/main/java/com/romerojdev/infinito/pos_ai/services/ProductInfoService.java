@@ -16,13 +16,23 @@ public class ProductInfoService {
     }
 
     public ProductInfoDTO getProductInfo(String barcode) {
-        // For now, use the first available strategy (OpenFoodFacts)
-        if (!strategies.isEmpty()) {
-            Object result = strategies.get(0).getProductInfo(barcode);
-            if (result instanceof ProductInfoDTO) {
-                return (ProductInfoDTO) result;
+        // Try each strategy in sequence until we get a successful result
+        for (ProductInfoStrategy strategy : strategies) {
+            try {
+                Object result = strategy.getProductInfo(barcode);
+                if (result instanceof ProductInfoDTO) {
+                    ProductInfoDTO productInfo = (ProductInfoDTO) result;
+                    if (productInfo != null && productInfo.getProduct() != null) {
+                        return productInfo;
+                    }
+                }
+            } catch (Exception e) {
+                // Log the error but continue with the next strategy
+                System.err.println("Error using strategy " + strategy.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
+
+        // If no strategy was successful, return null
         return null;
     }
 }

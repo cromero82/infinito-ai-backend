@@ -61,6 +61,27 @@ public class ProductInfoDTO {
         public String serving_quantity_unit;
         public String serving_size;
         public String stores;
+        public String unit;
+        public String package_unit;
+        public String department;
+        public String category;
+        public String subcategory;
+        public java.util.List<Seller> sellers;
+
+        public static class Seller {
+            public String sellerId;
+            public String sellerName;
+            public boolean sellerDefault;
+            public CommertialOffer commertialOffer;
+
+            public static class CommertialOffer {
+                public int AvailableQuantity;
+                public double Price;
+                public double PriceWithoutDiscount;
+                public double ListPrice;
+                public double Tax;
+            }
+        }
     }
 
     public ProductInfoDTO() {}
