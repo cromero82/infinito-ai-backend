@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -111,6 +113,11 @@ public class ExitoGraphQLService {
                 dto.getProduct().department = department;
                 dto.getProduct().category = category;
                 dto.getProduct().subcategory = subcategory;
+                // Set _keywords as split of product_name
+                if (dto.getProduct().product_name != null) {
+                    String clean = dto.getProduct().product_name.replaceAll("[()\\-]", "");
+                    dto.getProduct()._keywords = clean.split("\\s+");
+                }
             }
 
             // Try to extract priceValidUntil from <script id="__NEXT_DATA__" type="application/json">
@@ -177,6 +184,7 @@ public class ExitoGraphQLService {
 
                 JsonNode breadcrumbs = product.get("breadcrumbList").get("itemListElement");
                 StringBuilder categories = new StringBuilder();
+                List<String> categoriesHierarchy = new ArrayList<>();
 
                 for (int i = 0; i < breadcrumbs.size(); i++) {
                     JsonNode breadcrumb = breadcrumbs.get(i);
@@ -185,10 +193,14 @@ public class ExitoGraphQLService {
                             categories.append(" > ");
                         }
                         categories.append(breadcrumb.get("name").asText());
+                        // Add to hierarchy list (up to 3 elements)
+                        if (categoriesHierarchy.size() < 3) {
+                            categoriesHierarchy.add(breadcrumb.get("name").asText());
+                        }
                     }
                 }
-
-                productDto.generic_name = categories.toString();
+                productDto.categories = categories.toString();
+                productDto.categories_hierarchy = categoriesHierarchy.toArray(new String[0]);
             }
 
             // Extract GTIN (barcode) if available
@@ -285,7 +297,17 @@ public class ExitoGraphQLService {
                 }
                 if (!sellersList.isEmpty()) {
                     productDto.sellers = sellersList;
+                    // Set price, priceWithoutDiscount, percentDiscount
+                    ProductInfoDTO.Product.Seller.CommertialOffer commertialOffer = sellersList.get(0).commertialOffer;
+                    if (commertialOffer != null) {
+                        productDto.price = commertialOffer.Price;
+                        productDto.priceWithoutDiscount = commertialOffer.PriceWithoutDiscount;
+                        if (commertialOffer.PriceWithoutDiscount > 0 && commertialOffer.Price > 0) {
+                            productDto.percentDiscount = ((commertialOffer.PriceWithoutDiscount - commertialOffer.Price) / commertialOffer.PriceWithoutDiscount) * 100.0;
+                        }
+                    }
                 }
+
             }
 
             return new ProductInfoDTO(barcode, productDto);
