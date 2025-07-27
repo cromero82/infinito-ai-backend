@@ -1,4 +1,4 @@
-package com.romerojdev.infinito.pos_ai.controllers;
+package com.romerojdev.infinito.pos_ai.controllers.external;
 
 import com.romerojdev.infinito.pos_ai.services.IImageService;
 import com.romerojdev.infinito.pos_ai.services.QueryProductService;

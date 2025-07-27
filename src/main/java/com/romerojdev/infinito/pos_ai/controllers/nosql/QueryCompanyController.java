@@ -1,4 +1,4 @@
-package com.romerojdev.infinito.pos_ai.controllers;
+package com.romerojdev.infinito.pos_ai.controllers.nosql;
 
 import com.romerojdev.infinito.pos_ai.model.Company;
 import com.romerojdev.infinito.pos_ai.services.QueryCompanyService;

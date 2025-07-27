@@ -1,4 +1,4 @@
-package com.romerojdev.infinito.pos_ai.controllers;
+package com.romerojdev.infinito.pos_ai.controllers.external;
 
 import com.romerojdev.infinito.pos_ai.dto.ProductInfoDTO;
 import com.romerojdev.infinito.pos_ai.services.OlimpicaStoreProductInfoStrategy;
@@ -26,4 +26,3 @@ public class OlimpicaStoreProductInfoController {
         return null;
     }
 }
-

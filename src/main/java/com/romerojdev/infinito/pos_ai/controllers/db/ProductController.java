@@ -1,4 +1,4 @@
-package com.romerojdev.infinito.pos_ai.controllers;
+package com.romerojdev.infinito.pos_ai.controllers.db;
 
 import com.romerojdev.infinito.pos_ai.entities.Product;
 import com.romerojdev.infinito.pos_ai.services.ProductService;
@@ -47,4 +47,3 @@ public class ProductController {
         }
     }
 }
-
