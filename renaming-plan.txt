@@ -1,0 +1,16 @@
+Renaming Strategy:
+
+1. Current package: com.infinitesoft.relationaldb
+2. New package: com.infinitesoft.pos_relational_data_service
+
+File Renames:
+- RelationalDbApplication.java → PosRelationalDataServiceApplication.java
+- RelationalDbApplicationTests.java → PosRelationalDataServiceApplicationTests.java
+
+Configuration Updates:
+- POM file: Update groupId, artifactId, name, and description
+- application.properties: Update spring.application.name
+
+Package Structure Updates:
+- Update all package declarations
+- Update all import statements referencing the old package
